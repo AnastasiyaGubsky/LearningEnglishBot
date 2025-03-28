@@ -121,7 +121,7 @@ public class CommandHandler {
         if (deleted) {
             return "Слово " + word + " было удалено.";
         } else {
-            return "Ошибка. Пожалуйста, добавьте пару слов или введите нужную команду.";
+            return "Ошибка. Слова " + word + " нет в вашем списке";
         }
     }
 

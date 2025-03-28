@@ -45,7 +45,7 @@ public class TrainingService {
             if (currentIndex + 1 >= words.size()) {
                 ongoingTraining.remove(userId);
                 currentWordIndex.remove(userId);
-                return "Тренировка завершена. Поздравляем!";
+                return "Правильно! Тренировка завершена. Поздравляем!";
             }
             return "Правильно! Следующее слово: " + words.get(currentIndex + 1).getWord();
         } else {
