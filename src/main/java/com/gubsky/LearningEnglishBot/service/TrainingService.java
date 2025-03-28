@@ -75,17 +75,6 @@ public class TrainingService {
         currentWordIndex.remove(userId);
     }
 
-    public String getNextWord(Long userId) {
-        List<Word> words = ongoingTraining.get(userId);
-        Integer currentIndex = currentWordIndex.get(userId);
-
-        if (words == null || currentIndex == null) {
-            return "Ошибка: тренировка не была начата. Используйте команду /go для начала.";
-        }
-
-        return words.get(currentIndex).getWord();
-    }
-
     public boolean isInTraining(Long userId) {
         return ongoingTraining.containsKey(userId);
     }
