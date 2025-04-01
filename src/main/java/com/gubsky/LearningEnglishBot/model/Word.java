@@ -38,6 +38,10 @@ public class Word {
         return translation;
     }
 
+    public void setTranslation(String translation) {
+        this.translation = translation;
+    }
+
     public Long getUserId() {
         return userId;
     }
