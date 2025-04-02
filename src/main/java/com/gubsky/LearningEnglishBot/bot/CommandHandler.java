@@ -42,7 +42,6 @@ public class CommandHandler {
         }
 
         UserState state = userStateManager.getState(userId);
-        System.out.println("User " + userId + " state: " + state);
 
         if (message.startsWith("/")) {
             return processCommand(message, userId, state);
@@ -117,13 +116,17 @@ public class CommandHandler {
         switch (state) {
             case ADDING:
                 String addResponse = addWord(message, userId);
-                userStateManager.setState(userId, UserState.WAITING);
+                if (!addResponse.contains("Некорректный формат")) {
+                    userStateManager.setState(userId, UserState.WAITING);
+                }
                 return addResponse;
             case TRAINING:
                 return trainingService.checkAnswer(userId, message);
             case DELETING:
                 String delResponse = deleteWord(message, userId);
-                userStateManager.setState(userId, UserState.WAITING);
+                if (!delResponse.contains("нет в вашем списке")) {
+                    userStateManager.setState(userId, UserState.WAITING);
+                }
                 return delResponse;
             case WAITING:
             default:
