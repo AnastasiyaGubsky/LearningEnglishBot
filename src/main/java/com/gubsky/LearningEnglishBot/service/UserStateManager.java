@@ -13,20 +13,10 @@ import java.util.Map;
 public class UserStateManager {
     private final Map<Long, UserState> userStates = new HashMap<>();
 
-    /**
-     * Получить состояние пользователя.
-     * @param userId идентификатор пользователя
-     * @return состояние пользователя, по умолчанию WAITING
-     */
     public UserState getState(Long userId) {
         return userStates.getOrDefault(userId, UserState.WAITING);
     }
 
-    /**
-     * Установить состояние пользователя.
-     * @param userId идентификатор пользователя
-     * @param state новое состояние
-     */
     public void setState(Long userId, UserState state) {
         userStates.put(userId, state);
     }

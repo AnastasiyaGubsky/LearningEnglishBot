@@ -1,6 +1,8 @@
 package com.gubsky.LearningEnglishBot.service;
 
 import com.gubsky.LearningEnglishBot.model.Word;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -13,6 +15,8 @@ import java.util.stream.Collectors;
 @Service
 public class TrainingService {
 
+    private static final Logger logger = LoggerFactory.getLogger(TrainingService.class);
+
     private final WordService wordService;
     private final Map<Long, List<Word>> ongoingTraining = new HashMap<>();
     private final Map<Long, Integer> currentWordIndex = new HashMap<>();
@@ -24,16 +28,19 @@ public class TrainingService {
     public void startTraining(Long userId) {
         List<Word> words = wordService.getWords(userId);
         if (words.isEmpty()) {
+            logger.warn("User {} has no words for training", userId);
             throw new IllegalStateException("У вас нет слов для тренировки. Добавьте слова.");
         }
         ongoingTraining.put(userId, words);
         currentWordIndex.put(userId, 0);
+        logger.info("Training started for user {} with {} words", userId, words.size());
     }
 
     public String checkAnswer(Long userId, String translation) {
         List<Word> words = ongoingTraining.get(userId);
         Integer currentIndex = currentWordIndex.get(userId);
         if (words == null || currentIndex == null) {
+            logger.warn("User {} attempted to check answer without active training", userId);
             return "Ошибка: тренировка не была начата. Используйте команду /go для начала.";
         }
         Word currentWord = words.get(currentIndex);
@@ -42,15 +49,18 @@ public class TrainingService {
                 .map(String::trim)
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
+
         Set<String> userTranslations = Arrays.stream(translation.split(","))
                 .map(String::trim)
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
 
         if (storedTranslations.containsAll(userTranslations)) {
-            String correctTranslationMessage = "Правильный перевод: " + currentWord.getTranslation();
+            String correctTranslationMessage = "Верно!";
+            logger.info("User {} answered correctly for word {}", userId, currentWord.getWord());
             return advanceTraining(userId, correctTranslationMessage);
         } else {
+            logger.info("User {} answered incorrectly for word {}", userId, currentWord.getWord());
             return "Неправильно! Попробуйте снова.\nЕсли хотите увидеть правильный перевод, напишите /support.";
         }
     }
@@ -59,16 +69,19 @@ public class TrainingService {
         List<Word> words = ongoingTraining.get(userId);
         Integer currentIndex = currentWordIndex.get(userId);
         if (words == null || currentIndex == null) {
+            logger.warn("User {} requested correct translation but training is not active", userId);
             return "Тренировка завершена. Используйте команду /go для начала новой тренировки.";
         }
         Word currentWord = words.get(currentIndex);
         String correctTranslationMessage = "Правильный перевод: " + currentWord.getTranslation();
+        logger.info("User {} requested correct translation for word {}", userId, currentWord.getWord());
         return advanceTraining(userId, correctTranslationMessage);
     }
 
     public void stopTraining(Long userId) {
         ongoingTraining.remove(userId);
         currentWordIndex.remove(userId);
+        logger.info("Training stopped for user {}", userId);
     }
 
     public boolean isInTraining(Long userId) {
@@ -87,6 +100,7 @@ public class TrainingService {
         if (currentIndex + 1 >= words.size()) {
             ongoingTraining.remove(userId);
             currentWordIndex.remove(userId);
+            logger.info("Training finished for user {}", userId);
             return correctTranslationMessage + "\nТренировка завершена. Поздравляем!";
         } else {
             currentWordIndex.put(userId, currentIndex + 1);

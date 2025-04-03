@@ -5,10 +5,11 @@ import com.gubsky.LearningEnglishBot.model.Word;
 import com.gubsky.LearningEnglishBot.service.TrainingService;
 import com.gubsky.LearningEnglishBot.service.UserStateManager;
 import com.gubsky.LearningEnglishBot.service.WordService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-
 /**
  * Обработчик команд, полученных от пользователя.
  * Разделяет логику по режимам: добавление, тренировка, удаление и режим ожидания.
@@ -16,12 +17,14 @@ import java.util.List;
 @Component
 public class CommandHandler {
 
-    private final WordService wordService;
-    private final TrainingService trainingService;
-    private final UserStateManager userStateManager;
+    private static final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 
     private static final String UNKNOWN_COMMAND = "Неизвестная команда. Пожалуйста, введите команду из списка:\n" + getHelpMessage();
     private static final String DELETE_COMMAND = "Пожалуйста, отправьте слово на английском, которое хотите удалить.";
+
+    private final WordService wordService;
+    private final TrainingService trainingService;
+    private final UserStateManager userStateManager;
 
     public CommandHandler(WordService wordService, TrainingService trainingService, UserStateManager userStateManager) {
         this.wordService = wordService;
@@ -36,17 +39,26 @@ public class CommandHandler {
      * @return ответ бота
      */
     public String handleCommand(String message, Long userId) {
-        // Если пользователь в режиме TRAINING, но тренировка завершена, сбрасываем состояние
-        if (userStateManager.getState(userId) == UserState.TRAINING && !trainingService.isInTraining(userId)) {
-            userStateManager.setState(userId, UserState.WAITING);
-        }
+        try {
+            // Если пользователь в режиме TRAINING, но тренировка завершена, сбрасываем состояние
+            if (userStateManager.getState(userId) == UserState.TRAINING && !trainingService.isInTraining(userId)) {
+                logger.info("User {} training finished, resetting state to WAITING", userId);
+                userStateManager.setState(userId, UserState.WAITING);
+            }
 
-        UserState state = userStateManager.getState(userId);
+            UserState state = userStateManager.getState(userId);
+            logger.info("User {} state: {}", userId, state);
 
-        if (message.startsWith("/")) {
-            return processCommand(message, userId, state);
-        } else {
-            return processInput(message, userId, state);
+            if (message.startsWith("/")) {
+                logger.debug("Processing command: {}", message);
+                return processCommand(message, userId, state);
+            } else {
+                logger.debug("Processing input: {}", message);
+                return processInput(message, userId, state);
+            }
+        } catch (Exception e) {
+            logger.error("Error handling command for user {}: {}", userId, e.getMessage());
+            return "Произошла ошибка при обработке команды.";
         }
     }
 
@@ -54,6 +66,7 @@ public class CommandHandler {
         // Обработка команд зависит от текущего режима
         switch (state) {
             case ADDING:
+                logger.warn("User {} in ADDING state entered command: {}", userId, message);
                 return "Добавьте пару или несколько пар слов";
             case TRAINING:
                 return processTrainingCommand(message, userId);
@@ -98,9 +111,11 @@ public class CommandHandler {
         // Обработка команд в режиме тренировки
         if (message.equals("/stop")) {
             userStateManager.setState(userId, UserState.WAITING);
+            logger.info("User {} stopped training", userId);
             return stopTraining(userId);
         } else if (message.equals("/support")) {
             String supportMessage = getCorrectTranslation(userId);
+            logger.info("User {} requested support: {}", userId, supportMessage);
             if (supportMessage.contains("Тренировка завершена")) {
                 userStateManager.setState(userId, UserState.WAITING);
                 trainingService.stopTraining(userId);
@@ -161,6 +176,7 @@ public class CommandHandler {
             Word firstWord = wordService.getWords(userId).get(0);
             return "Тренировка началась! Пожалуйста, введите перевод слова: " + firstWord.getWord();
         } catch (IllegalStateException e) {
+            logger.error("Error starting training for user {}: {}", userId, e.getMessage());
             return e.getMessage();
         }
     }
