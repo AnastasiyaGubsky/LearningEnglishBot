@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+
 /**
  * Обработчик команд, полученных от пользователя.
  * Разделяет логику по режимам: добавление, тренировка, удаление и режим ожидания.
@@ -34,8 +35,9 @@ public class CommandHandler {
 
     /**
      * Основной метод обработки входящих команд.
+     *
      * @param message сообщение от пользователя
-     * @param userId идентификатор пользователя
+     * @param userId  идентификатор пользователя
      * @return ответ бота
      */
     public String handleCommand(String message, Long userId) {
@@ -92,16 +94,16 @@ public class CommandHandler {
                 return addWordMessage();
             case "/go":
                 userStateManager.setState(userId, UserState.TRAINING);
-                return startTraining(userId);
+                return processStartTraining(userId);
             case "/delete":
                 userStateManager.setState(userId, UserState.DELETING);
                 return DELETE_COMMAND;
             case "/deleteall":
                 userStateManager.setState(userId, UserState.WAITING);
-                return deleteAllWords(userId);
+                return processDeleteAllWords(userId);
             case "/check":
                 userStateManager.setState(userId, UserState.WAITING);
-                return getWords(userId);
+                return processShowWords(userId);
             default:
                 return UNKNOWN_COMMAND;
         }
@@ -112,9 +114,9 @@ public class CommandHandler {
         if (message.equals("/stop")) {
             userStateManager.setState(userId, UserState.WAITING);
             logger.info("User {} stopped training", userId);
-            return stopTraining(userId);
+            return processStopTraining(userId);
         } else if (message.equals("/support")) {
-            String supportMessage = getCorrectTranslation(userId);
+            String supportMessage = processCorrectTranslation(userId);
             logger.info("User {} requested support: {}", userId, supportMessage);
             if (supportMessage.contains("Тренировка завершена")) {
                 userStateManager.setState(userId, UserState.WAITING);
@@ -130,7 +132,7 @@ public class CommandHandler {
         // Обработка текстового ввода (без слеша) в зависимости от режима
         switch (state) {
             case ADDING:
-                String addResponse = addWord(message, userId);
+                String addResponse = processAddWord(message, userId);
                 if (!addResponse.contains("Некорректный формат")) {
                     userStateManager.setState(userId, UserState.WAITING);
                 }
@@ -138,7 +140,7 @@ public class CommandHandler {
             case TRAINING:
                 return trainingService.checkAnswer(userId, message);
             case DELETING:
-                String delResponse = deleteWord(message, userId);
+                String delResponse = processDeleteWord(message, userId);
                 if (!delResponse.contains("нет в вашем списке")) {
                     userStateManager.setState(userId, UserState.WAITING);
                 }
@@ -149,28 +151,7 @@ public class CommandHandler {
         }
     }
 
-    private String startMessage() {
-        return """
-                Привет! Я бот, который поможет тебе запомнить английские слова.
-                Чтобы узнать мои возможности, воспользуйся командой /help.
-                """;
-    }
-
-    private String addWordMessage() {
-        return """
-                Пожалуйста, отправьте пару или несколько пар слов на английском и их перевод через пробел.
-                Если переводов несколько, напишите их через ",".
-                Если перевод состоит из нескольких слов, разделите их "-".
-                Каждую пару пишите с новой строки.
-                
-                Пример:
-                cat кошка
-                dog собака
-                can банка, мочь, способный
-                workflow рабочий-процесс""";
-    }
-
-    private String startTraining(Long userId) {
+    private String processStartTraining(Long userId) {
         try {
             trainingService.startTraining(userId);
             Word firstWord = wordService.getWords(userId).get(0);
@@ -181,16 +162,16 @@ public class CommandHandler {
         }
     }
 
-    private String stopTraining(Long userId) {
+    private String processStopTraining(Long userId) {
         trainingService.stopTraining(userId);
         return "Тренировка завершена.";
     }
 
-    private String getCorrectTranslation(Long userId) {
+    private String processCorrectTranslation(Long userId) {
         return trainingService.getCorrectTranslation(userId);
     }
 
-    private String getWords(Long userId) {
+    private String processShowWords(Long userId) {
         List<Word> words = wordService.getWords(userId);
         if (words.isEmpty()) {
             return "У вас нет добавленных слов.";
@@ -202,24 +183,7 @@ public class CommandHandler {
         return sb.toString();
     }
 
-    private String deleteAllWords(Long userId) {
-        wordService.deleteAllWords(userId);
-        return "Все слова были удалены.";
-    }
-
-    private String deleteWord(String word, Long userId) {
-        if (trainingService.isInTraining(userId)) {
-            return trainingService.checkAnswer(userId, word);
-        }
-        boolean deleted = wordService.deleteWord(userId, word);
-        if (deleted) {
-            return "Слово " + word + " было удалено.";
-        } else {
-            return "Ошибка. Слова " + word + " нет в вашем списке.";
-        }
-    }
-
-    private String addWord(String message, Long userId) {
+    private String processAddWord(String message, Long userId) {
         StringBuilder response = new StringBuilder();
         String[] parts = message.split("\n");
 
@@ -236,6 +200,44 @@ public class CommandHandler {
             }
         }
         return response.toString();
+    }
+
+    private String processDeleteAllWords(Long userId) {
+        wordService.deleteAllWords(userId);
+        return "Все слова были удалены.";
+    }
+
+    private String processDeleteWord(String word, Long userId) {
+        if (trainingService.isInTraining(userId)) {
+            return trainingService.checkAnswer(userId, word);
+        }
+        boolean deleted = wordService.deleteWord(userId, word);
+        if (deleted) {
+            return "Слово " + word + " было удалено.";
+        } else {
+            return "Ошибка. Слова " + word + " нет в вашем списке.";
+        }
+    }
+
+    private String startMessage() {
+        return """
+                Привет! Я бот, который поможет тебе запомнить английские слова.
+                Чтобы узнать мои возможности, воспользуйся командой /help.
+                """;
+    }
+
+    private String addWordMessage() {
+        return """
+                Пожалуйста, отправьте пару или несколько пар слов на английском и их перевод через пробел.
+                Если переводов несколько, напишите их через ",".
+                Если перевод состоит из нескольких слов, разделите их "-".
+                Каждую пару пишите с новой строки.
+                                
+                Пример:
+                cat кошка
+                dog собака
+                can банка, мочь, способный
+                workflow рабочий-процесс""";
     }
 
     private static String getHelpMessage() {
