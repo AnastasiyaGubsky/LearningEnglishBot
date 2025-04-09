@@ -8,12 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UserStateManagerTest {
 
-    private UserStateManager userStateManager;
+    private UserStateService userStateManager;
     private final Long userId = 1L;
 
     @BeforeEach
     void setUp() {
-        userStateManager = new UserStateManager();
+        userStateManager = new UserStateService();
     }
 
     @Test

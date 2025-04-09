@@ -10,7 +10,7 @@ import java.util.Map;
  * Сервис для управления состояниями пользователей.
  */
 @Service
-public class UserStateManager {
+public class UserStateService {
     private final Map<Long, UserState> userStates = new HashMap<>();
 
     public UserState getState(Long userId) {

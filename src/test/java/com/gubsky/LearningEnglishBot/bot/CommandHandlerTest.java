@@ -3,7 +3,7 @@ package com.gubsky.LearningEnglishBot.bot;
 import com.gubsky.LearningEnglishBot.model.UserState;
 import com.gubsky.LearningEnglishBot.model.Word;
 import com.gubsky.LearningEnglishBot.service.TrainingService;
-import com.gubsky.LearningEnglishBot.service.UserStateManager;
+import com.gubsky.LearningEnglishBot.service.UserStateService;
 import com.gubsky.LearningEnglishBot.service.WordService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ class CommandHandlerTest {
     private TrainingService trainingService;
 
     @Mock
-    private UserStateManager userStateManager;
+    private UserStateService userStateManager;
 
     @InjectMocks
     private CommandHandler commandHandler;

@@ -3,7 +3,7 @@ package com.gubsky.LearningEnglishBot.bot;
 import com.gubsky.LearningEnglishBot.model.UserState;
 import com.gubsky.LearningEnglishBot.model.Word;
 import com.gubsky.LearningEnglishBot.service.TrainingService;
-import com.gubsky.LearningEnglishBot.service.UserStateManager;
+import com.gubsky.LearningEnglishBot.service.UserStateService;
 import com.gubsky.LearningEnglishBot.service.WordService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +25,9 @@ public class CommandHandler {
 
     private final WordService wordService;
     private final TrainingService trainingService;
-    private final UserStateManager userStateManager;
+    private final UserStateService userStateManager;
 
-    public CommandHandler(WordService wordService, TrainingService trainingService, UserStateManager userStateManager) {
+    public CommandHandler(WordService wordService, TrainingService trainingService, UserStateService userStateManager) {
         this.wordService = wordService;
         this.trainingService = trainingService;
         this.userStateManager = userStateManager;
