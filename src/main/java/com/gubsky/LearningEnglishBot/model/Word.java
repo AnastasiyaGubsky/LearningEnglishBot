@@ -29,7 +29,6 @@ public class Word {
         this.userId = userId;
     }
 
-
     public String getWord() {
         return word;
     }

@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
  * Сервис для работы со словами.
  * Позволяет добавлять слова (слово + перевод), получать все слова, удалять слово или все слова.
  */
+
 @Service
 public class WordService {
 
@@ -33,6 +34,7 @@ public class WordService {
     public void addWord(Word word) {
         try {
             Word existingWord = wordRepository.findByUserIdAndWord(word.getUserId(), word.getWord());
+
             if (existingWord != null) {
                 String mergedTranslations = mergeTranslations(existingWord.getTranslation(), word.getTranslation());
                 existingWord.setTranslation(mergedTranslations);
@@ -61,6 +63,7 @@ public class WordService {
     public boolean deleteWord(Long userId, String word) {
         try {
             List<Word> words = wordRepository.findByUserId(userId);
+
             for (Word w : words) {
                 if (w.getWord().equalsIgnoreCase(word)) {
                     wordRepository.delete(w);
@@ -68,6 +71,7 @@ public class WordService {
                     return true;
                 }
             }
+
             logger.warn("Word {} not found for user {}", word, userId);
             return false;
         } catch (Exception e) {

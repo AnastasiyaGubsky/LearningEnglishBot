@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class BotConfig {
+
     @Value("${bot.username}")
     private String username;
 

@@ -15,6 +15,7 @@ import java.util.List;
  * Обработчик команд, полученных от пользователя.
  * Разделяет логику по режимам: добавление, тренировка, удаление и режим ожидания.
  */
+
 @Component
 public class CommandHandler {
 
@@ -40,6 +41,7 @@ public class CommandHandler {
      * @param userId  идентификатор пользователя
      * @return ответ бота
      */
+
     public String handleCommand(String message, Long userId) {
         try {
             // Если пользователь в режиме TRAINING, но тренировка завершена, сбрасываем состояние
@@ -176,10 +178,13 @@ public class CommandHandler {
         if (words.isEmpty()) {
             return "У вас нет добавленных слов.";
         }
+
         StringBuilder sb = new StringBuilder("Ваши слова:\n");
+
         for (Word word : words) {
             sb.append(word.getWord()).append(" - ").append(word.getTranslation()).append("\n");
         }
+
         return sb.toString();
     }
 
@@ -199,6 +204,7 @@ public class CommandHandler {
                 response.append("Некорректный формат. Используйте: слово перевод.\n");
             }
         }
+
         return response.toString();
     }
 
@@ -211,7 +217,9 @@ public class CommandHandler {
         if (trainingService.isInTraining(userId)) {
             return trainingService.checkAnswer(userId, word);
         }
+
         boolean deleted = wordService.deleteWord(userId, word);
+
         if (deleted) {
             return "Слово " + word + " было удалено.";
         } else {

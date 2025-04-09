@@ -36,39 +36,50 @@ class TrainingServiceTest {
     @Test
     void startTraining_NoWords_ShouldThrowException() {
         when(wordService.getWords(userId)).thenReturn(Collections.emptyList());
+
         Exception exception = assertThrows(IllegalStateException.class, () -> trainingService.startTraining(userId));
+
         assertEquals("У вас нет слов для тренировки. Добавьте слова.", exception.getMessage());
     }
 
     @Test
     void startTraining_WithWords_ShouldStartTraining() {
         when(wordService.getWords(userId)).thenReturn(sampleWords);
+
         trainingService.startTraining(userId);
+
         assertTrue(trainingService.isInTraining(userId));
     }
 
     @Test
     void checkAnswer_CorrectAnswer_ShouldAdvanceTraining() {
         when(wordService.getWords(userId)).thenReturn(sampleWords);
+
         trainingService.startTraining(userId);
         String response = trainingService.checkAnswer(userId, "кошка");
+
         assertTrue(response.contains("Следующее слово: dog") || response.contains("Тренировка завершена"));
     }
 
     @Test
     void checkAnswer_IncorrectAnswer_ShouldReturnErrorMessage() {
         when(wordService.getWords(userId)).thenReturn(sampleWords);
+
         trainingService.startTraining(userId);
         String response = trainingService.checkAnswer(userId, "забыл");
+
         assertTrue(response.contains("Неправильно"));
     }
 
     @Test
     void getCorrectTranslation_TrainingActive_ShouldReturnCorrectTranslationAndAdvance() {
         when(wordService.getWords(userId)).thenReturn(sampleWords);
+
         trainingService.startTraining(userId);
         String response = trainingService.getCorrectTranslation(userId);
+
         assertTrue(response.contains("Правильный перевод:"));
+
         if (!trainingService.isInTraining(userId)) {
             assertTrue(response.contains("Тренировка завершена"));
         }
@@ -77,8 +88,10 @@ class TrainingServiceTest {
     @Test
     void stopTraining_ShouldRemoveTrainingData() {
         when(wordService.getWords(userId)).thenReturn(sampleWords);
+
         trainingService.startTraining(userId);
         assertTrue(trainingService.isInTraining(userId));
+
         trainingService.stopTraining(userId);
         assertFalse(trainingService.isInTraining(userId));
     }

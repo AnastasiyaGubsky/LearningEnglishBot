@@ -11,6 +11,7 @@ import java.util.Map;
  */
 @Service
 public class UserStateService {
+
     private final Map<Long, UserState> userStates = new HashMap<>();
 
     public UserState getState(Long userId) {

@@ -31,12 +31,14 @@ class BotInitializerTest {
     @Test
     void telegramBotsApi_ShouldRegisterBotSuccessfully() throws TelegramApiException {
         TelegramBotsApi result = botInitializer.telegramBotsApi();
+
         assertNotNull(result);
     }
 
     @Test
     void telegramBotsApi_ShouldHandleTelegramApiException() throws TelegramApiException {
         when(bot.getBotToken()).thenReturn("");
+
         try {
             botInitializer.telegramBotsApi();
         } catch (RuntimeException e) {

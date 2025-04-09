@@ -19,22 +19,28 @@ class UserStateManagerTest {
     @Test
     void testGetState_NewUser_ShouldReturnWaiting() {
         UserState state = userStateManager.getState(userId);
+
         assertEquals(UserState.WAITING, state, "Состояние по-умолчинию должно быть WAITING");
     }
 
     @Test
     void testSetState_ShouldUpdateState() {
         userStateManager.setState(userId, UserState.TRAINING);
+
         UserState state = userStateManager.getState(userId);
+
         assertEquals(UserState.TRAINING, state, "Состояние должно обновиться на TRAINING");
     }
 
     @Test
     void testMultipleUsers_ShouldStoreStatesSeparately() {
         Long userId2 = 2L;
+
         userStateManager.setState(userId, UserState.TRAINING);
         userStateManager.setState(userId2, UserState.DELETING);
+
         assertEquals(UserState.TRAINING, userStateManager.getState(userId));
+
         assertEquals(UserState.DELETING, userStateManager.getState(userId2));
     }
 }

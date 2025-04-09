@@ -34,7 +34,9 @@ class WordServiceTest {
     void addWord_NewWord_ShouldSaveWord() {
         Word word = new Word("cat", "кошка", userId);
         when(wordRepository.findByUserIdAndWord(userId, "cat")).thenReturn(null);
+
         wordService.addWord(word);
+
         verify(wordRepository, times(1)).save(word);
     }
 
@@ -43,7 +45,9 @@ class WordServiceTest {
         Word existingWord = new Word("cat", "кошка", userId);
         Word newWord = new Word("cat", "кот", userId);
         when(wordRepository.findByUserIdAndWord(userId, "cat")).thenReturn(existingWord);
+
         wordService.addWord(newWord);
+
         verify(wordRepository, times(1)).save(argThat(w ->
                 w.getWord().equals("cat") &&
                         w.getTranslation().equals("кошка, кот")
@@ -54,7 +58,9 @@ class WordServiceTest {
     void getWords_ShouldReturnUserWords() {
         List<Word> words = Arrays.asList(new Word("cat", "кошка", userId), new Word("dog", "собака", userId));
         when(wordRepository.findByUserId(userId)).thenReturn(words);
+
         List<Word> result = wordService.getWords(userId);
+
         assertEquals(2, result.size());
         assertEquals("cat", result.get(0).getWord());
         assertEquals("dog", result.get(1).getWord());
@@ -64,7 +70,9 @@ class WordServiceTest {
     void deleteWord_ShouldDeleteExistingWord() {
         Word word = new Word("cat", "кошка", userId);
         when(wordRepository.findByUserId(userId)).thenReturn(Collections.singletonList(word));
+
         boolean result = wordService.deleteWord(userId, "cat");
+
         assertTrue(result);
         verify(wordRepository, times(1)).delete(word);
     }
@@ -72,13 +80,16 @@ class WordServiceTest {
     @Test
     void deleteWord_WordNotFound_ShouldReturnFalse() {
         when(wordRepository.findByUserId(userId)).thenReturn(Collections.emptyList());
+
         boolean result = wordService.deleteWord(userId, "cat");
+
         assertFalse(result);
     }
 
     @Test
     void deleteAllWords_ShouldDeleteAllUserWords() {
         wordService.deleteAllWords(userId);
+
         verify(wordRepository, times(1)).deleteAllByUserId(userId);
     }
 }

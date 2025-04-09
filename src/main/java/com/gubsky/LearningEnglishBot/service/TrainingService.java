@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
  * Сервис для проведения тренировки.
  * Управляет списком слов, текущим индексом и проверкой ответов.
  */
+
 @Service
 public class TrainingService {
 
@@ -27,10 +28,12 @@ public class TrainingService {
 
     public void startTraining(Long userId) {
         List<Word> words = wordService.getWords(userId);
+
         if (words.isEmpty()) {
             logger.warn("User {} has no words for training", userId);
             throw new IllegalStateException("У вас нет слов для тренировки. Добавьте слова.");
         }
+
         ongoingTraining.put(userId, words);
         currentWordIndex.put(userId, 0);
         logger.info("Training started for user {} with {} words", userId, words.size());
@@ -39,10 +42,12 @@ public class TrainingService {
     public String checkAnswer(Long userId, String translation) {
         List<Word> words = ongoingTraining.get(userId);
         Integer currentIndex = currentWordIndex.get(userId);
+
         if (words == null || currentIndex == null) {
             logger.warn("User {} attempted to check answer without active training", userId);
             return "Ошибка: тренировка не была начата. Используйте команду /go для начала.";
         }
+
         Word currentWord = words.get(currentIndex);
 
         Set<String> storedTranslations = Arrays.stream(currentWord.getTranslation().split(","))
@@ -68,10 +73,12 @@ public class TrainingService {
     public String getCorrectTranslation(Long userId) {
         List<Word> words = ongoingTraining.get(userId);
         Integer currentIndex = currentWordIndex.get(userId);
+
         if (words == null || currentIndex == null) {
             logger.warn("User {} requested correct translation but training is not active", userId);
             return "Тренировка завершена. Используйте команду /go для начала новой тренировки.";
         }
+
         Word currentWord = words.get(currentIndex);
         String correctTranslationMessage = "Правильный перевод: " + currentWord.getTranslation();
         logger.info("User {} requested correct translation for word {}", userId, currentWord.getWord());
@@ -94,9 +101,11 @@ public class TrainingService {
      * @param correctTranslationMessage сообщение с правильным переводом текущего слова
      * @return строка с информацией о следующем слове или сообщением о завершении тренировки
      */
+
     private String advanceTraining(Long userId, String correctTranslationMessage) {
         List<Word> words = ongoingTraining.get(userId);
         Integer currentIndex = currentWordIndex.get(userId);
+
         if (currentIndex + 1 >= words.size()) {
             ongoingTraining.remove(userId);
             currentWordIndex.remove(userId);

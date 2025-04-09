@@ -59,9 +59,13 @@ class BotTest {
         when(commandHandler.handleCommand("/start", userId)).thenReturn("Привет!");
         doReturn(null).when(bot).execute(any(SendMessage.class));
         bot.onUpdateReceived(update);
+
         ArgumentCaptor<SendMessage> captor = ArgumentCaptor.forClass(SendMessage.class);
+
         verify(bot, times(1)).execute(captor.capture());
+
         SendMessage captured = captor.getValue();
+
         assertEquals("Привет!", captured.getText());
         assertEquals(String.valueOf(userId), captured.getChatId());
         verify(commandHandler, times(1)).handleCommand("/start", userId);
@@ -72,7 +76,9 @@ class BotTest {
         Update update = createUpdate("Привет!", userId);
         when(commandHandler.handleCommand("Привет!", userId))
                 .thenThrow(new RuntimeException("Тестовое исключение"));
+
         bot.onUpdateReceived(update);
+
         verify(bot, never()).sendMessage(anyLong(), anyString());
     }
 
@@ -81,14 +87,15 @@ class BotTest {
         SendMessage expectedMessage = new SendMessage();
         expectedMessage.setChatId(userId);
         expectedMessage.setText("Привет!");
-
         doReturn(null).when(bot).execute(any(SendMessage.class));
 
         bot.sendMessage(userId, "Привет!");
-
         ArgumentCaptor<SendMessage> captor = ArgumentCaptor.forClass(SendMessage.class);
+
         verify(bot, times(1)).execute(captor.capture());
+
         SendMessage captured = captor.getValue();
+
         assertEquals(String.valueOf(userId), captured.getChatId());
         assertEquals("Привет!", captured.getText());
     }
@@ -96,7 +103,9 @@ class BotTest {
     @Test
     void sendMessage_ShouldHandleTelegramApiException() throws TelegramApiException {
         doThrow(new TelegramApiException("Тестовое исключение")).when(bot).execute(any(SendMessage.class));
+
         bot.sendMessage(userId, "Привет!");
+
         verify(bot, times(1)).execute(any(SendMessage.class));
     }
 }
