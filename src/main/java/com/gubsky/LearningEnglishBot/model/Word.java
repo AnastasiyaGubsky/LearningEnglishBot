@@ -7,6 +7,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 
+/**
+ * Сущность для хранения информации о словах и их переводах.
+ * У каждого пользователя уникальный идентификатор userId и свой список слов.
+ */
+
 @Entity
 @Table(name = "word")
 @Data

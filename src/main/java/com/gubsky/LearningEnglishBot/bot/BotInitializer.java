@@ -8,6 +8,11 @@ import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+/**
+ * Класс, отвечающий за инициализацию и регистрацию бота в Telegram.
+ * Использует TelegramBotsApi для регистрации бота и обработки ошибок.
+ */
+
 @Component
 public class BotInitializer {
 

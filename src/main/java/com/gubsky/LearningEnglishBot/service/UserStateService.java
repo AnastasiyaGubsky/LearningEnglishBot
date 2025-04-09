@@ -9,6 +9,7 @@ import java.util.Map;
 /**
  * Сервис для управления состояниями пользователей.
  */
+
 @Service
 public class UserStateService {
 

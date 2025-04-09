@@ -10,6 +10,11 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+/**
+ * Класс, представляющий бота для взаимодействия с пользователем через Telegram.
+ * Наследуется от TelegramLongPollingBot и переопределяет необходимые методы для обработки обновлений.
+ */
+
 @Component
 public class Bot extends TelegramLongPollingBot {
 
