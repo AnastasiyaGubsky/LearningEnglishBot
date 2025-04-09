@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:15
+    container_name: learning-english-db
+    environment:
+      POSTGRES_DB: "word"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+
+    container_name: learning-english-bot
+    ports:
+      - "8082:8082"
+    depends_on:
+      - db
+
+    env_file:
+      - ./src/main/resources/.env
+
+    environment:
+      DB_URL: "jdbc:postgresql://db:5432/word"
+    volumes:
+      - ./logs:/app/logs
+
+volumes:
+  pgdata:
