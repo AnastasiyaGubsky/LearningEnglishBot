@@ -22,7 +22,7 @@ services:
       - db
 
     env_file:
-      - ./src/main/resources/.env
+      - .env
 
     environment:
       DB_URL: "jdbc:postgresql://db:5432/word"
